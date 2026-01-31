@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      #VIRTUAL_HOST: ${BACKEND_HOST}
+      #VIRTUAL_PORT: 8000
+    expose:
+      - "8000"
+    ports:
+      - "127.0.0.1:8000:8000"
+    networks:
+      - proxy-tier
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    command: sh -c "cp -r /usr/share/nginx/html/* /export && sleep infinity"
+    volumes:
+      - /var/www/html:/export
+    networks:
+      - proxy-tier
+
+  # proxy:
+  #   image: nginx:alpine
+  #   container_name: proxy
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - /var/www/html:/var/www/html:ro
+  #     - ./certs/localhost+2.pem:/etc/nginx/certs/localhost+2.pem:ro
+  #     - ./certs/localhost+2-key.pem:/etc/nginx/certs/localhost+2-key.pem:ro
+
+  #   depends_on:
+  #     - backend
+  #     - frontend
+  #   networks:
+  #     - proxy-tier
+
+
+
+networks:
+  proxy-tier:
+

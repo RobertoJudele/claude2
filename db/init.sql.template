@@ -1,0 +1,46 @@
+-- init.sql.template
+
+CREATE DATABASE IF NOT EXISTS rfftestdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE USER IF NOT EXISTS 'rfftest'@'localhost' IDENTIFIED BY 'pa55testsv';
+
+GRANT ALL PRIVILEGES ON rfftestdb.* TO 'rfftest'@'localhost';
+
+FLUSH PRIVILEGES;
+
+
+CREATE TABLE IF NOT EXISTS Users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(50) UNIQUE NOT NULL,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    hashed_password VARCHAR(255) NOT NULL,
+    is_verified BOOLEAN DEFAULT FALSE,
+    role VARCHAR(50) DEFAULT 'user',
+    refresh_token_hash VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS Refresh_tokens (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    device_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    revoked BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE Tickets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    event_name VARCHAR(255) NOT NULL,
+    date DATETIME NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    status ENUM('active', 'used', 'cancelled') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
